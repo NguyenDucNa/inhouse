@@ -1,0 +1,33 @@
+worker_processes 1;
+error_log stderr;
+pid nginx.pid;
+daemon off;
+
+events {
+  worker_connections 768;
+}
+
+http {
+  types_hash_max_size 2048;
+  include mime.types;
+  charset UTF-8;
+
+  server {
+    listen {{ $.PORT }};
+    root /app/www/apps/client/dist;
+    index index.html;
+    port_in_redirect off;
+
+    location / {
+      try_files $uri $uri/ /index.html =404;
+    }
+
+    location /api/ {
+        proxy_pass http://inhouse-order.gbytebrain.com/;
+    }
+
+    location /graphql {
+        proxy_pass http://inhouse-order.gbytebrain.com/graphql;
+    }
+  }
+}

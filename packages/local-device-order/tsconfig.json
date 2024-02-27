@@ -1,0 +1,28 @@
+{
+  "extends": "tsconfig/base.json",
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@packages/local-device-order/*": [
+        "../../packages/local-device-order/src/*"
+      ],
+      "@packages/network-graphql/*": [
+        "../../packages/network-graphql/src/*"
+      ],
+      "@packages/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@packages/core/*": [
+        "../../packages/core/src/*"
+      ]
+    }
+  }
+}

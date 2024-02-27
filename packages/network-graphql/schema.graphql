@@ -1,0 +1,669 @@
+type DailyInvoiceReport {
+  date: String!
+  total: Float!
+  count: Int!
+}
+
+type InvoiceReport {
+  daily: [DailyInvoiceReport!]!
+}
+
+type AggregatedInvoiceReport {
+  totalInvoices: Int!
+  totalAmount: Int!
+}
+
+type Query {
+  analytic__invoice_report(companyID: ID!): InvoiceReport!
+  analytic__invoice_aggregated_report_by_date(
+    companyID: ID!
+    startDate: String!
+    endDate: String!
+  ): AggregatedInvoiceReport!
+  banners(offset: Int!, limit: Int!, filter: BannerStatusFilter): [Banner!]!
+  banner(id: ID!): Banner!
+  companySettings(id: ID!): CompanySettings
+  companies(offset: Int!, limit: Int!): [Company!]!
+  searchCompanies(query: String!): [Company!]!
+  company(id: ID!): Company
+  branches(companyId: ID!): [Branch!]!
+  branch(id: ID!): Branch!
+  version: String
+  preSignUpload(filename: String!): PreSignUpload!
+  invoice(invoiceID: ID!): Invoice!
+  invoiceCount(filter: InvoiceFilter!): Int!
+  invoicesByBranch(offset: Int!, limit: Int!, branchId: String): [Invoice!]!
+  invoicesByOrder(orderId: String!): [Invoice]!
+  menuProductConfigurationValue(id: ID!): MenuProductConfigurationValue
+  menuProductConfigurations(productId: ID!): [MenuProductConfiguration!]!
+  menuProductConfiguration(id: ID!): MenuProductConfiguration
+  menuProduct(id: ID!): MenuProduct!
+  menuSection(id: ID!): MenuSection
+  menuSections(menuId: ID!): [MenuSection!]!
+  menu(id: ID!): Menu!
+  menus(companyId: ID!): [Menu!]!
+  localDeviceOrders: [LocalDeviceOrder!]!
+  localDeviceOrder(id: ID!): LocalDeviceOrder!
+  localDeviceIncompletedOrders: [LocalDeviceOrder!]!
+  ordersCount(filter: OrderFilter): Int!
+  orders(offset: Int!, limit: Int!, filter: OrderFilter): [Order!]!
+  order(id: String!): Order!
+  tableGroup(id: ID!): TableGroup
+  tableGroups(branchID: ID!): [TableGroup!]!
+  table(id: ID!): Table
+  tables(tableGroup: ID!): [Table!]!
+  user(id: String!): User
+  users(offset: Int!, limit: Int!, filter: UserFilter): [User!]!
+  usersCount(filter: UserFilter): Int!
+  currentUser: User
+}
+
+type Mutation {
+  analytic__scanInvoices(companyID: ID!): StatusResult!
+  createBanner(
+    input: CreateBannerData!
+    timeRuleInput: CreateBannerTimeRule!
+    contentInput: CreateBannerContent!
+  ): Banner!
+  updateBanner(
+    bannerId: String!
+    input: UpdateBannerData!
+    timeRuleInput: UpdateBannerTimeRule!
+    contentInput: UpdateBannerContent!
+  ): Banner!
+  updateCompanySettings(
+    id: ID!
+    input: UpdateCompanySettings!
+  ): CompanySettings!
+  createCompany(name: String!): Company!
+  createBranch(companyId: ID!, input: CreateBranch!): Branch!
+  updateBranch(id: ID!, input: UpdateBranch): Branch!
+  deleteBranch(id: ID!): Branch
+  ping: Boolean!
+  invoiceDelete(invoiceID: ID!): Invoice!
+  createAllergy(input: CreateAllergy!): Allergy!
+  updateAllergy(id: ID!, input: UpdateAllergy): Allergy!
+  deleteAllergy(id: ID!): Allergy
+  createMenuProductConfigurationValue(
+    menuProductConfigurationId: ID!
+    input: CreateMenuProductConfigurationValue!
+  ): MenuProductConfigurationValue!
+  updateMenuProductConfigurationValue(
+    id: ID!
+    input: UpdateMenuProductConfigurationValue!
+  ): MenuProductConfigurationValue!
+  deleteMenuProductConfigurationValue(id: ID!): MenuProductConfigurationValue
+  createMenuProductConfiguration(
+    productId: String!
+    input: CreateProductConfiguration!
+  ): MenuProductConfiguration!
+  updateMenuProductConfiguration(
+    id: ID!
+    input: UpdateProductConfiguration!
+  ): MenuProductConfiguration!
+  deleteMenuProductConfiguration(id: ID!): Boolean!
+  createMenuProduct(menuId: ID, input: CreateMenuProduct): MenuProduct!
+  updateMenuProduct(id: ID!, input: UpdateMenuProduct): MenuProduct!
+  deleteMenuProduct(id: ID!): MenuProduct
+  createMenuSection(menuId: ID!, input: CreateMenuSection!): MenuSection!
+  updateMenuSection(id: ID!, input: UpdateMenuSection!): MenuSection!
+  deleteMenuSection(id: ID!): Boolean!
+  deleteMenu(id: ID!): Menu
+  createMenu(companyId: ID!, input: CreateMenu!): Menu!
+  updateMenu(id: ID!, input: UpdateMenu!): Menu!
+  localDeviceOrderStart(
+    companyId: String!
+    data: CreateOrderData
+  ): LocalDeviceOrder!
+  localDeviceOrderCreateOrderTask(
+    orderId: String!
+    data: CreateOrderTask
+  ): LocalDeviceOrderTask!
+  localDeviceOrderBackState(orderId: String!): LocalDeviceOrder!
+  localDeviceOrderNextState(orderId: String!): LocalDeviceOrder!
+  localDeviceOrderCancel(orderId: String!): LocalDeviceOrder!
+  localDeviceOrderCreateInvoice(
+    orderId: ID!
+    input: LocalDeviceOrderCreateInvoice
+  ): Boolean!
+  payOrderUsingCash(orderId: String!): Order!
+  createTableGroup(branchID: ID!, input: CreateTableGroup!): TableGroup!
+  updateTableGroup(id: ID!, input: UpdateTableGroup!): TableGroup!
+  deleteTableGroup(id: ID!): TableGroup!
+  createTableBatch(tableGroup: ID!, data: [CreateTable!]!): CreateBatchResult!
+  createTable(tableGroup: ID!, data: CreateTable): Table!
+  updateTable(id: ID!, data: UpdateTable): Table!
+  updateTableBatch(data: [BatchUpdateTableEntry!]!): [Table!]!
+  deleteTable(id: ID!): Table!
+  deleteTableBatch(ids: [ID!]!): DeleteBatchResult!
+  createUser(companyID: ID!, data: CreateUserData): CreateUserResult!
+  updateUser(id: String!, data: UpdateUserData): User!
+  deleteUser(id: String): User!
+}
+
+enum TimeRuleType {
+  RANGE_TIME
+  ALWAYS
+}
+
+enum ContentType {
+  TOP
+  OVERLAY
+}
+
+type RangeTimeRule {
+  type: TimeRuleType
+  start: String
+  end: String
+}
+
+type AlwaysTimeRule {
+  type: TimeRuleType
+}
+
+union TimeRuleUnion = RangeTimeRule | AlwaysTimeRule
+
+type TopContent {
+  type: ContentType
+  text: String
+}
+
+type OverlayContent {
+  type: ContentType
+  image: String
+}
+
+union ContentUnion = TopContent | OverlayContent
+
+type Banner {
+  bannerId: String!
+  title: String!
+  content: ContentUnion!
+  timeRule: TimeRuleUnion!
+  enabled: Boolean!
+  viewCount: Int!
+  clickCount: Int!
+}
+
+input CreateBannerData {
+  title: String!
+  enabled: Boolean!
+}
+
+input CreateBannerTimeRule {
+  type: TimeRuleType!
+  start: String
+  end: String
+}
+
+input CreateBannerContent {
+  type: ContentType!
+  image: String
+  text: String
+}
+
+input UpdateBannerData {
+  title: String!
+  enabled: Boolean!
+}
+
+input UpdateBannerTimeRule {
+  type: TimeRuleType!
+  start: String
+  end: String
+}
+
+input UpdateBannerContent {
+  type: ContentType!
+  image: String
+  text: String
+}
+
+input BannerStatusFilter {
+  enabled: Boolean!
+}
+
+type CompanySettings {
+  id: ID!
+  currency: String!
+}
+
+input UpdateCompanySettings {
+  currency: String!
+}
+
+type Company {
+  id: ID!
+  name: String!
+  settings: CompanySettings!
+}
+
+input CreateCompanyInput {
+  name: ID!
+}
+
+type Branch {
+  id: ID!
+  name: String!
+  address: String!
+  companyId: String!
+}
+
+input UpdateBranch {
+  name: String!
+  address: String!
+}
+
+input CreateBranch {
+  name: String!
+  address: String!
+}
+
+type CreateBatchResult {
+  count: Int!
+}
+
+type StatusResult {
+  status: Boolean!
+}
+
+type DeleteBatchResult {
+  count: Int!
+}
+
+scalar Date
+
+type Subscription {
+  supported: Boolean!
+  localDeviceOrderUpdateSubscribe(id: ID!): LocalDeviceOrder
+}
+
+type PreSignUpload {
+  origin: String!
+  originPath: String!
+  thumbnail: String!
+  thumbnailPath: String!
+}
+
+type Invoice {
+  id: ID!
+  place: String
+  total: Int!
+  orderId: String
+  branchId: String
+  invoiceLines: [InvoiceLine!]!
+}
+
+type InvoiceLine {
+  id: ID!
+  title: String
+  subtitle: String
+  quantity: Int
+  price: Int
+  total: Int
+}
+
+input InvoiceFilter {
+  branchId: String
+}
+
+type Allergy {
+  id: ID!
+  name: String!
+}
+
+input CreateAllergy {
+  name: String!
+}
+
+input UpdateAllergy {
+  name: String!
+}
+
+type MenuProductConfigurationValue {
+  id: ID!
+  name: String!
+  price: Int!
+}
+
+input CreateMenuProductConfigurationValue {
+  name: String!
+  price: Int!
+}
+
+input UpdateMenuProductConfigurationValue {
+  name: String!
+  price: Int!
+}
+
+enum ProductConfigurationType {
+  BASE
+  OPTION
+  SELECTION
+}
+
+type MenuProductConfiguration {
+  id: ID!
+  title: String!
+  type: ProductConfigurationType!
+  values: [MenuProductConfigurationValue!]!
+}
+
+enum CreateProductConfigurationType {
+  OPTION
+  SELECTION
+}
+
+input CreateProductConfiguration {
+  title: String!
+  type: CreateProductConfigurationType!
+}
+
+input UpdateProductConfiguration {
+  title: String!
+  type: ProductConfigurationType!
+}
+
+type MenuProduct {
+  id: ID!
+  menuId: String!
+  companyId: String!
+  enabled: Boolean!
+  title: String!
+  description: String!
+  images: [String!]!
+  ingredients: [String!]!
+  configurations: [MenuProductConfiguration!]!
+  sectionId: String
+  section: MenuSection
+}
+
+input CreateMenuProduct {
+  title: String!
+  description: String!
+  images: [String!]!
+  ingredients: [String!]!
+  enabled: Boolean!
+  basePrice: Int!
+  sectionId: String
+}
+
+input UpdateMenuProduct {
+  enabled: Boolean!
+  title: String!
+  description: String!
+  images: [String!]!
+  ingredients: [String!]!
+  sectionId: String
+}
+
+type MenuSection {
+  id: ID!
+  name: String!
+  description: String!
+  menuId: String!
+  menuProducts: [MenuProduct!]
+}
+
+input CreateMenuSection {
+  name: String!
+  description: String!
+}
+
+input UpdateMenuSection {
+  name: String!
+  description: String!
+}
+
+type Menu {
+  id: ID!
+  title: String!
+  companyId: String!
+  sections: [MenuSection!]!
+  menuProducts: [MenuProduct!]!
+}
+
+input CreateMenu {
+  title: String!
+}
+
+input UpdateMenu {
+  title: String!
+}
+
+type LocalDeviceOrder implements Order {
+  id: String!
+  type: String!
+  state: String!
+  data: LocalDeviceOrderData!
+  menu: Menu!
+  createdAt: Date!
+  updatedAt: Date!
+  orderTasks: [LocalDeviceOrderTask!]!
+  tableOrder: TableOrder
+}
+
+type LocalDeviceOrderTask implements OrderTask {
+  id: String!
+  data: LocalDeviceOrderTaskData!
+  state: String!
+  createdAt: Date!
+  updatedAt: Date!
+  products: [OrderProduct!]!
+}
+
+type LocalDeviceOrderData {
+  guestCount: Int!
+  guests: [Guest!]!
+}
+
+type LocalDeviceOrderTaskData {
+  guestID: ID!
+}
+
+input CreateOrderData {
+  menuId: String!
+  tableID: String
+  branchID: String!
+  customTableName: String
+  guestCount: Int!
+}
+
+input CreateOrderTask {
+  guestID: ID!
+  products: [CreateOrderProduct!]!
+}
+
+input LocalDeviceOrderCreateInvoice {
+  invoices: [LocalDeviceOrderInvoiceRecord!]!
+}
+
+input LocalDeviceOrderInvoiceRecord {
+  guestID: String!
+  data: [LocalDeviceOrderInvoiceLineData!]!
+}
+
+input LocalDeviceOrderInvoiceLineData {
+  productId: String!
+  configurationValueIds: [String!]!
+  quantity: Int!
+}
+
+input CreateOrderProduct {
+  productId: String!
+  quantity: Int!
+  configurationValuesIds: [String!]!
+}
+
+type TableOrder {
+  id: ID!
+  tableId: ID
+  table: Table
+  customTableName: String
+  orderId: ID!
+}
+
+type Guest {
+  id: ID!
+  name: String!
+}
+
+interface Order {
+  id: String!
+  type: String!
+  state: String!
+  menu: Menu!
+  createdAt: Date!
+  updatedAt: Date!
+  orderTasks: [OrderTask!]!
+  tableOrder: TableOrder
+}
+
+interface OrderTask {
+  id: String!
+  state: String!
+  createdAt: Date!
+  updatedAt: Date!
+  products: [OrderProduct!]!
+}
+
+type OrderProduct {
+  id: String!
+  title: String!
+  quantity: Int!
+  menuProductId: String!
+  configurations: [OrderProductConfiguration!]!
+}
+
+type OrderProductConfiguration {
+  id: String!
+  title: String!
+  type: String!
+  value: String!
+  price: Float!
+  menuProductConfigurationValueId: String!
+}
+
+input OrderFilter {
+  state: String
+}
+
+type TableGridEntry {
+  row: Int!
+  column: Int!
+  tableId: ID!
+}
+
+type TableGridLayout {
+  rows: Int!
+  columns: Int!
+  entries: [TableGridEntry!]!
+}
+
+type GridLayout {
+  mesh: TableGridLayout
+}
+
+type TableGroup {
+  id: ID!
+  name: String!
+  arrangementCode: String
+  gridLayout: GridLayout!
+  tables: [Table!]!
+}
+
+input TableGridEntryInput {
+  row: Int!
+  column: Int!
+  tableId: ID!
+}
+
+input TableGridLayoutInput {
+  rows: Int!
+  columns: Int!
+  entries: [TableGridEntryInput!]!
+}
+
+input GridLayoutInput {
+  mesh: TableGridLayoutInput
+}
+
+input CreateTableGroup {
+  name: String!
+  arrangementCode: String
+}
+
+input UpdateTableGroup {
+  name: String!
+  arrangementCode: String
+  gridLayout: GridLayoutInput!
+}
+
+type Table {
+  id: ID!
+  name: String!
+  seats: Int!
+  tableGroupId: ID!
+  tableGroup: TableGroup!
+  createdAt: Int!
+  updatedAt: Int!
+}
+
+input CreateTable {
+  name: String!
+  seats: Int!
+}
+
+input UpdateTable {
+  name: String!
+  seats: Int!
+  tableGroupId: ID!
+}
+
+input BatchUpdateTableEntry {
+  id: ID!
+  name: String!
+  seats: Int!
+  tableGroupId: ID!
+}
+
+type User {
+  id: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  username: String!
+  status: Boolean!
+  role: [UserRole!]!
+}
+
+type CreateUserResult {
+  user: User!
+  password: String!
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  WAITER
+}
+
+input CreateUserData {
+  email: String!
+  firstName: String!
+  lastName: String!
+  username: String!
+  role: [UserRole!]!
+}
+
+input UpdateUserData {
+  firstName: String!
+  lastName: String!
+  username: String!
+  email: String!
+  status: Boolean!
+}
+
+input UserFilter {
+  status: Boolean!
+}

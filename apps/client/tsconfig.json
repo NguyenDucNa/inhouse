@@ -1,0 +1,14 @@
+{
+  "extends": "tsconfig/base.json",
+  "parserOptions": {
+    "project": ["./tsconfig.node.json"],
+  },
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "network-graphql",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "codegen": "graphql-codegen --config -v -d codegen.ts"
+  },
+  "dependencies": {
+    "tsconfig": "workspace:*",
+    "eslint-config-custom": "workspace:*",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "graphql": "^16.8.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.2",
+    "@types/node": "^20.10.6"
+  }
+}
